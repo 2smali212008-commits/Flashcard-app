@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Flashcards — Tide</title>
+
+<style>
+:root {
+    --navy: #062d49;
+    --deep: #041f35;
+    --cyan: #69e5df;
+    --ice: #e9fbfa;
+    --line: rgba(204, 244, 246, 0.16);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 85% 8%, rgba(26,145,164,.28), transparent 35%),
+        linear-gradient(135deg, var(--deep), #073754 55%, var(--navy));
+    color: var(--ice);
+    font-family: Arial, sans-serif;
+}
+
+button, input, textarea {
+    font: inherit;
+}
+
+.shell {
+    width: min(1060px, calc(100% - 40px));
+    margin: auto;
+}
+
+header {
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--line);
+}
+
+.brand {
+    color: var(--ice);
+    font-size: 20px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.back {
+    color: #b9d4dd;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+h1 {
+    margin: 38px 0 8px;
+    font-size: clamp(32px, 5vw, 46px);
+}
+
+.subtitle {
+    color: #b4ccd5;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 18px;
+    padding: 25px 0 45px;
+}
+
+.panel {
+    padding: 20px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(12, 61, 85, 0.72);
+}
+
+.panel h2 {
+    margin: 0 0 18px;
+    font-size: 17px;
+}
+
+label {
+    display: block;
+    margin: 14px 0 7px;
+    color: #bdd5dc;
+    font-size: 13px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(199,239,242,.2);
+    border-radius: 10px;
+    outline: none;
+    background: rgba(2,29,48,.48);
+    color: var(--ice);
+}
+
+input:focus, textarea:focus {
+    border-color: var(--cyan);
+}
+
+textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+
+button {
+    padding: 11px 15px;
+    border: 0;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.primary {
+    margin-top: 15px;
+    background: linear-gradient(135deg, #9af5e8, #4dd0dc);
+    color: #05354b;
+}
+
+.cancel {
+    margin-top: 15px;
+    background: transparent;
+    color: var(--ice);
+    border: 1px solid var(--line);
+}
+
+.search {
+    margin-bottom: 14px;
+}
+
+.card {
+    margin-bottom: 11px;
+    padding: 14px;
+    border: 1px solid var(--line);
+    border-radius: 13px;
+    background: rgba(3,34,54,.48);
+}
+
+.card h3 {
+    margin: 0 0 7px;
+    font-size: 15px;
+}
+
+.card p {
+    margin: 0;
+    color: #aecbd3;
+    font-size: 13px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.card-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: 12px;
+}
+
+.card-actions button {
+    padding: 7px 11px;
+    color: var(--ice);
+    background: rgba(222,250,250,.1);
+}
+
+.card-actions .delete {
+    color: #ffc0c6;
+}
+
+.empty {
+    color: #b4ccd5;
+    text-align: center;
+    padding: 25px 5px;
+}
+
+@media (max-width: 760px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+<link rel="stylesheet" href="./theme.css">
+</style>
+<link rel="stylesheet" href="./theme.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+<div class="shell">
+    <header>
+        <a class="brand" href="index.html">🌊 Tide</a>
+        <a class="back" href="index.html">← Back to home</a>
+    </header>
+
+    <h1>Manage flashcards</h1>
+    <p class="subtitle">Add, view, edit, and delete cards. Your changes are saved in this browser.</p>
+
+    <main class="layout">
+        <section class="panel">
+            <h2 id="formTitle">➕ Add a flashcard</h2>
+
+            <form id="cardForm">
+                <label for="question">Question</label>
+                <input id="question" maxlength="240" placeholder="e.g. What is photosynthesis?" required>
+
+                <label for="answer">Answer</label>
+                <textarea id="answer" maxlength="1000" placeholder="Write the answer..." required></textarea>
+
+                <button class="primary" id="saveButton" type="submit">Add flashcard</button>
+                <button class="cancel" id="cancelButton" type="button" hidden>Cancel</button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <h2>📚 All flashcards (<span id="count">0</span>)</h2>
+            <input class="search" id="search" type="search" placeholder="Search questions and answers...">
+            <div id="cardList"></div>
+        </section>
+    </main>
+</div>
+
+<script>
+const STORAGE_KEY = "flashcards";
+let editingId = null;
+
+const form = document.getElementById("cardForm");
+const questionInput = document.getElementById("question");
+const answerInput = document.getElementById("answer");
+const cardList = document.getElementById("cardList");
+const searchInput = document.getElementById("search");
+
+function getCards() {
+    try {
+        const cards = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+        return Array.isArray(cards) ? cards : [];
+    } catch {
+        return [];
+    }
+}
+
+function saveCards(cards) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+}
+
+function escapeHTML(text) {
+    return String(text).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+function renderCards() {
+    const allCards = getCards();
+    const searchText = searchInput.value.trim().toLowerCase();
+
+    const visibleCards = allCards.filter(card =>
+        `${card.question} ${card.answer}`.toLowerCase().includes(searchText)
+    );
+
+    document.getElementById("count").textContent = allCards.length;
+
+    if (visibleCards.length === 0) {
+        cardList.innerHTML = `<div class="empty">No flashcards found. Add your first card!</div>`;
+        return;
+    }
+
+    cardList.innerHTML = visibleCards.map(card => `
+        <article class="card">
+            <h3>❓ ${escapeHTML(card.question)}</h3>
+            <p>💡 ${escapeHTML(card.answer)}</p>
+            <div class="card-actions">
+                <button type="button" data-action="edit" data-id="${escapeHTML(card.id)}">Edit</button>
+                <button class="delete" type="button" data-action="delete" data-id="${escapeHTML(card.id)}">Delete</button>
+            </div>
+        </article>
+    `).join("");
+}
+
+function resetForm() {
+    editingId = null;
+    form.reset();
+    document.getElementById("formTitle").textContent = "➕ Add a flashcard";
+    document.getElementById("saveButton").textContent = "Add flashcard";
+    document.getElementById("cancelButton").hidden = true;
+}
+
+form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const question = questionInput.value.trim();
+    const answer = answerInput.value.trim();
+
+    if (!question || !answer) return;
+
+    const cards = getCards();
+
+    if (editingId !== null) {
+        const index = cards.findIndex(card => String(card.id) === String(editingId));
+        if (index !== -1) {
+            cards[index] = { ...cards[index], question, answer };
+        }
+    } else {
+        cards.unshift({
+            id: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now())),
+            question,
+            answer
+        });
+    }
+
+    saveCards(cards);
+    resetForm();
+    renderCards();
+});
+
+document.getElementById("cancelButton").addEventListener("click", resetForm);
+searchInput.addEventListener("input", renderCards);
+
+cardList.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    const cards = getCards();
+    const card = cards.find(item => String(item.id) === button.dataset.id);
+    if (!card) return;
+
+    if (button.dataset.action === "edit") {
+        editingId = card.id;
+        questionInput.value = card.question;
+        answerInput.value = card.answer;
+        document.getElementById("formTitle").textContent = "✏️ Edit flashcard";
+        document.getElementById("saveButton").textContent = "Save changes";
+        document.getElementById("cancelButton").hidden = false;
+        questionInput.focus();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    if (button.dataset.action === "delete") {
+        if (!confirm("Delete this flashcard?")) return;
+
+        const remainingCards = cards.filter(item => String(item.id) !== button.dataset.id);
+        saveCards(remainingCards);
+        renderCards();
+    }
+});
+
+renderCards();
+<script src="./script.js"></script>
+
+</script>
+</body>
+</html>

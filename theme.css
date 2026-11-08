@@ -1,0 +1,118 @@
+/* Shared violet theme for manage.html and Qs.html */
+:root {
+  color-scheme: dark;
+  --theme-deep: #101044;
+  --theme-main: #292980;
+  --theme-glow: #7546a8;
+  --theme-text: #ffffff;
+  --theme-soft: #d5d2f5;
+  --theme-line: rgba(255, 255, 255, .18);
+  --theme-button-a: #ffcf70;
+  --theme-button-b: #ff8db5;
+  --theme-button-text: #25194e;
+}
+
+body {
+  background: linear-gradient(
+    135deg,
+    var(--theme-deep),
+    var(--theme-main),
+    var(--theme-glow)
+  ) !important;
+  color: var(--theme-text);
+}
+
+.topbar,
+header {
+  border-color: var(--theme-line) !important;
+}
+
+.brand,
+.home,
+.back {
+  color: var(--theme-text);
+}
+
+.home:hover,
+.back:hover {
+  color: #ffd6ff;
+}
+
+.panel,
+.empty {
+  background: rgba(41, 41, 128, .68) !important;
+  border-color: var(--theme-line) !important;
+}
+
+.field input,
+.field textarea,
+.search input,
+input,
+textarea {
+  background: rgba(16, 16, 68, .72) !important;
+  border-color: rgba(255, 255, 255, .24) !important;
+  color: var(--theme-text) !important;
+}
+
+.field input:focus,
+.field textarea:focus,
+.search input:focus,
+input:focus,
+textarea:focus {
+  border-color: #ffd6ff !important;
+  box-shadow: 0 0 0 3px rgba(255, 214, 255, .12) !important;
+}
+
+.btn.primary,
+.primary,
+.btn.answer-btn,
+.manage-link {
+  background: linear-gradient(
+    90deg,
+    var(--theme-button-a),
+    var(--theme-button-b)
+  ) !important;
+  border-color: transparent !important;
+  color: var(--theme-button-text) !important;
+}
+
+.btn.primary:hover,
+.primary:hover,
+.btn.answer-btn:hover,
+.manage-link:hover {
+  filter: brightness(1.08);
+}
+
+.btn.quiet,
+.btn:not(.primary):not(.answer-btn),
+.cancel,
+.card-actions button,
+.icon-btn {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .25);
+  color: var(--theme-text);
+}
+
+.card,
+.flashcard {
+  background: rgba(16, 16, 68, .44);
+  border-color: rgba(255, 255, 255, .2);
+}
+
+.card p,
+.answer,
+.subtitle,
+.empty p {
+  color: var(--theme-soft);
+}
+
+footer {
+  border-color: var(--theme-line);
+  color: var(--theme-soft);
+}
+
+@media (max-width: 600px) {
+  .panel {
+    background: rgba(41, 41, 128, .72) !important;
+  }
+}

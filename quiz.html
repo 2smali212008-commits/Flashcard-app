@@ -1,0 +1,248 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#062d49">
+<title>Study Cards — Tide</title>
+<style>
+:root{color-scheme:dark;--deep:#041f35;--navy:#062d49;--cyan:#69e5df;--ice:#e9fbfa;--muted:#a9c6d0;--line:rgba(204,244,246,.16)}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 80% 7%,rgba(26,145,164,.3),transparent 36%),radial-gradient(ellipse at 8% 88%,rgba(18,103,147,.26),transparent 38%),linear-gradient(135deg,var(--deep),#073754 55%,var(--navy));color:var(--ice);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;flex-direction:column}
+button,a{font:inherit}
+a{color:inherit;text-decoration:none}
+.shell{width:min(1000px,calc(100% - 36px));margin:0 auto;flex:1;display:flex;flex-direction:column}
+.topbar{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:750}
+.mark{width:36px;height:36px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(145deg,#a0fff0,#45c7da);color:#063348;font-size:19px}
+.home{display:inline-flex;align-items:center;gap:8px;color:#b9d4dd;font-size:13px}
+.home:hover{color:var(--cyan)}
+.home svg{width:17px}
+.content{width:min(690px,100%);margin:auto;padding:38px 0 56px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid rgba(105,229,223,.24);border-radius:999px;background:rgba(42,156,166,.1);color:#9cf3e9;text-transform:uppercase;letter-spacing:1.4px;font-size:10px;font-weight:750}
+.eyebrow span{font-size:14px}
+.heading{font-size:clamp(31px,5vw,43px);letter-spacing:-1.6px;margin:15px 0 7px}
+.subheading{margin:0;color:#a9c6d0;font-size:14px}
+.progress{display:flex;align-items:center;gap:13px;margin:27px auto 17px;width:min(480px,100%)}
+.counter{white-space:nowrap;color:#c3dce1;font-size:12px;font-weight:700}
+.track{height:5px;border-radius:9px;background:rgba(223,250,250,.12);overflow:hidden;flex:1}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#4dd0dc,#9af5e8);border-radius:9px;transition:width .35s}
+.stage{perspective:1200px;width:min(560px,100%);height:330px;margin:0 auto 21px}
+.flip-card{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .68s cubic-bezier(.2,.72,.22,1)}
+.flip-card.flipped{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid rgba(194,241,241,.22);border-radius:25px;background:linear-gradient(150deg,rgba(19,84,108,.96),rgba(7,45,70,.97));box-shadow:0 28px 75px rgba(0,11,24,.34),inset 0 1px rgba(255,255,255,.07);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 42px;overflow:hidden}
+.face:before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:rgba(105,229,223,.055);filter:blur(2px);top:-150px;right:-85px;pointer-events:none}
+.back-face{transform:rotateY(180deg);background:linear-gradient(145deg,rgba(13,83,94,.97),rgba(7,48,69,.98))}
+.face-label{display:flex;align-items:center;gap:7px;color:#9ce9e2;text-transform:uppercase;letter-spacing:1.5px;font-size:10px;font-weight:800;margin-bottom:22px}
+.face-label span{font-size:16px}
+.card-text{position:relative;font-size:clamp(21px,3.6vw,30px);line-height:1.45;letter-spacing:-.55px;font-weight:680;white-space:pre-wrap;overflow-wrap:anywhere;max-height:205px;overflow:auto}
+.back-face .card-text{font-size:clamp(18px,3vw,25px);font-weight:560;color:#e0f6f3}
+.hint{margin-top:20px;color:#82a9b7;font-size:11px}
+.controls{display:flex;align-items:center;justify-content:center;gap:11px;flex-wrap:wrap}
+.btn{min-height:46px;padding:0 17px;border-radius:12px;border:1px solid rgba(199,239,242,.2);background:rgba(222,250,250,.055);color:#e3f8f8;display:inline-flex;align-items:center;justify-content:center;gap:9px;font-size:13px;font-weight:700;cursor:pointer;transition:transform .18s,border-color .18s,background .18s,opacity .18s}
+.btn:hover:not(:disabled){transform:translateY(-2px);border-color:rgba(105,229,223,.6);background:rgba(222,250,250,.1)}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn svg{width:17px;height:17px}
+.btn.answer-btn{min-width:156px;color:#05354b;background:linear-gradient(135deg,#9af5e8,#4dd0dc);border:0;box-shadow:0 9px 25px rgba(60,205,211,.15)}
+.btn.answer-btn:hover:not(:disabled){background:linear-gradient(135deg,#b0fff1,#64e0e4)}
+.empty{width:min(560px,100%);margin:36px auto;padding:42px 22px;border:1px solid var(--line);border-radius:23px;background:rgba(12,61,85,.55);box-shadow:0 25px 60px rgba(0,13,25,.2)}
+.empty .emoji{font-size:38px}
+.empty h2{margin:13px 0 8px;font-size:22px}
+.empty p{max-width:400px;margin:0 auto 20px;color:#aecbd3;font-size:14px;line-height:1.6}
+.manage-link{display:inline-flex;padding:12px 17px;border-radius:11px;color:#05354b;background:linear-gradient(135deg,#9af5e8,#4dd0dc);font-size:13px;font-weight:750}
+.notice{min-height:18px;margin-top:15px;color:#83aab7;font-size:11px}
+footer{border-top:1px solid var(--line);padding:16px 0;color:#7299a8;font-size:11px;display:flex;justify-content:space-between}
+footer span:last-child{color:#9bbbc4}
+@media(max-width:600px){.shell{width:calc(100% - 28px)}.topbar{height:66px}.content{padding:34px 0 42px}.stage{height:310px}.face{padding:28px 22px;border-radius:21px}.progress{margin-top:23px}.controls{gap:8px}.btn{padding:0 12px;min-height:44px;font-size:12px}.btn.answer-btn{min-width:140px}.subheading{font-size:13px}}
+@media(max-width:380px){.stage{height:290px}.btn{gap:6px;padding:0 9px}.btn.answer-btn{min-width:125px}}
+@media(prefers-reduced-motion:reduce){.flip-card,.bar,.btn{transition:none}}
+</style>
+<link rel="stylesheet" href="./theme.css">
+<link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="mark" aria-hidden="true">🌊</span>Tide</a>
+    <a class="home" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Back to home
+    </a>
+  </header>
+
+  <main class="content">
+    <div class="eyebrow"><span>✦</span> Focus. Learn. Remember.</div>
+    <h1 class="heading">Your flashcards</h1>
+    <p class="subheading">One question at a time. Take a moment to think, then reveal the answer.</p>
+
+    <section id="study" hidden>
+      <div class="progress">
+        <span class="counter" id="counter">1 / 1</span>
+        <div class="track"><div class="bar" id="bar"></div></div>
+      </div>
+
+      <div class="stage" aria-live="polite">
+        <div class="flip-card" id="flipCard">
+          <article class="face front-face">
+            <div class="face-label"><span>❓</span> Question</div>
+            <div class="card-text" id="questionText"></div>
+            <div class="hint">Think it through before you reveal the answer</div>
+          </article>
+          <article class="face back-face">
+            <div class="face-label"><span>💡</span> Answer</div>
+            <div class="card-text" id="answerText"></div>
+            <div class="hint">Ready? Return to the question or continue</div>
+          </article>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="previousBtn" type="button" aria-label="Previous flashcard">
+          <svg viewBox="0 0 24 24" fill="none"><path d="m15 18-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Previous
+        </button>
+        <button class="btn answer-btn" id="flipBtn" type="button">👀 Show answer</button>
+        <button class="btn" id="nextBtn" type="button" aria-label="Next flashcard">
+          Next
+          <svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="notice" id="notice" aria-live="polite"></div>
+    </section>
+
+    <section class="empty" id="empty" hidden>
+      <div class="emoji">🗂️</div>
+      <h2>No flashcards yet</h2>
+      <p>Add a question and answer in Manage Flashcards. Your saved cards will appear here automatically.</p>
+      <a class="manage-link" href="manage.html">＋ Manage flashcards</a>
+    </section>
+  </main>
+
+  <footer><span>© Tide Flashcards</span><span>Made for curious minds</span></footer>
+</div>
+
+<script>
+(() => {
+  const KEY = "flashcards";
+  const study = document.getElementById("study");
+  const empty = document.getElementById("empty");
+  const flipCard = document.getElementById("flipCard");
+  const questionText = document.getElementById("questionText");
+  const answerText = document.getElementById("answerText");
+  const counter = document.getElementById("counter");
+  const bar = document.getElementById("bar");
+  const previousBtn = document.getElementById("previousBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const flipBtn = document.getElementById("flipBtn");
+  let cards = [];
+  let current = 0;
+  let emptyNotice = "";
+
+  function readCards() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+      return Array.isArray(saved)
+        ? saved.filter(card => card && typeof card.question === "string" && typeof card.answer === "string")
+        : [];
+    } catch (error) {
+      return [];
+    }
+  }
+
+  function showCard() {
+    if (!cards.length) {
+      study.hidden = true;
+      empty.hidden = false;
+      document.querySelector(".empty p").textContent =
+        emptyNotice || "Add a question and answer in Manage Flashcards. Your saved cards will appear here automatically.";
+      return;
+    }
+
+    empty.hidden = true;
+    study.hidden = false;
+    if (current >= cards.length) current = cards.length - 1;
+    if (current < 0) current = 0;
+
+    flipCard.classList.remove("flipped");
+    questionText.textContent = cards[current].question;
+    answerText.textContent = cards[current].answer;
+    counter.textContent = `${current + 1} / ${cards.length}`;
+    bar.style.width = `${((current + 1) / cards.length) * 100}%`;
+    previousBtn.disabled = current === 0;
+    nextBtn.disabled = current === cards.length - 1;
+    flipBtn.textContent = "👀 Show answer";
+    document.getElementById("notice").textContent =
+      `${cards.length} saved ${cards.length === 1 ? "card" : "cards"}`;
+  }
+
+  function syncCards() {
+    const latest = readCards();
+    const currentId = cards[current] && cards[current].id;
+    cards = latest;
+
+    if (!cards.length) {
+      current = 0;
+      emptyNotice = "No saved flashcards were found. Add cards in Manage Flashcards, and they will appear here.";
+    } else {
+      emptyNotice = "";
+      const sameIndex = cards.findIndex(card => String(card.id) === String(currentId));
+      if (sameIndex >= 0) current = sameIndex;
+      else if (current >= cards.length) current = cards.length - 1;
+    }
+    showCard();
+  }
+
+  flipBtn.addEventListener("click", () => {
+    const flipped = flipCard.classList.toggle("flipped");
+    flipBtn.textContent = flipped ? "↩ Show question" : "👀 Show answer";
+  });
+
+  previousBtn.addEventListener("click", () => {
+    if (current > 0) {
+      current--;
+      showCard();
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (current < cards.length - 1) {
+      current++;
+      showCard();
+    }
+  });
+
+  window.addEventListener("storage", event => {
+    if (event.key === KEY || event.key === null) syncCards();
+  });
+
+  window.addEventListener("focus", syncCards);
+
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) syncCards();
+  });
+
+  document.addEventListener("keydown", event => {
+    if (event.key === "ArrowLeft" && current > 0) {
+      current--;
+      showCard();
+    }
+    if (event.key === "ArrowRight" && current < cards.length - 1) {
+      current++;
+      showCard();
+    }
+    if ((event.key === " " || event.key === "Enter") &&
+        !study.hidden && event.target === document.body) {
+      event.preventDefault();
+      flipBtn.click();
+    }
+  });
+
+  syncCards();
+})();
+<script src="./script.js"></script>
+
+</script>
+</body>
+</html>
